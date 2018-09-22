@@ -10,6 +10,9 @@
     "require": {
         "symfony/contracts": "^1.0"
     },
+    "conflict": {
+        "symfony/messenger": ">=4.2"
+    },
     "autoload": {
         "psr-4": { "Symfony\\Component\\Messenger\\": "src" }
     },
