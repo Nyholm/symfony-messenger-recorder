@@ -1,0 +1,19 @@
+{
+    "name": "nyholm/symfony-messenger-recorder",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nyholm",
+            "email": "tobias.nyholm@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/contracts": "^1.0"
+    },
+    "autoload": {
+        "psr-4": { "Symfony\\Component\\Messenger\\": "src" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Symfony\\Component\\Messenger\\Tests\\": "tests" }
+    }
+}
