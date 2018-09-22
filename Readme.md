@@ -3,11 +3,49 @@
 This is a substitute library before Symfony merges this feature to core. 
 
 
+## Use
+
+```yaml
+services:
+    messenger.middleware.handles_recorded_messages:
+        class: Symfony\Component\Messenger\Middleware\HandleRecordedMessageMiddleware
+        abstract: true
+        arguments:
+            - '@messenger.bus.event'
+            - '@messenger.recorder'
+
+    messenger.recorder:
+        class: Symfony\Component\Messenger\MessageRecorder
+        tags:
+          - { name: 'kernel.reset', method: 'reset' }
+
+    Symfony\Component\Messenger\MessageRecorderInterface:
+        alias: 'messenger.recorder'
+
+```
+
+```yaml
+
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        default_bus: messenger.bus.command
+        buses:
+            messenger.bus.command:
+                middleware:
+                    - messenger.middleware.validation
+                    - messenger.middleware.handles_recorded_messages
+                      # Doctrine transaction must be after handles_recorded_messages middleware
+                    - app.doctrine_transaction_middleware: ['default']
+            messenger.bus.event:
+                middleware:
+                    - messenger.middleware.allow_no_handler
+                    - messenger.middleware.validation
+```
 
 # From Symfony docs
 
-Events Recorder: Handle Events After CommandHandler Is Done
-===========================================================
+## Events Recorder: Handle Events After CommandHandler Is Done
 
 Let's take the example of an application that has a command (a CQRS message) named
 ``CreateUser``. That command is handled by the ``CreateUserHandler`` which creates
