@@ -34,9 +34,6 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface
 
     public function handle($message, callable $next)
     {
-        // Make sure the recorder is empty before we begin
-        $this->messageRecorder->resetRecordedMessages();
-
         try {
             $returnData = $next($message);
         } catch (\Throwable $exception) {
