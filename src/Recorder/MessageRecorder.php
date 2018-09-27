@@ -19,22 +19,8 @@ use Symfony\Contracts\Service\ResetInterface;
  */
 class MessageRecorder implements MessageRecorderInterface, RecordedMessageCollectionInterface, ResetInterface
 {
-    private $messages = array();
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRecordedMessages(): array
-    {
-        return $this->messages;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function resetRecordedMessages(): void
-    {
-        $this->messages = array();
+    use MessageRecorderTrait {
+        record as public record;
     }
 
     /**
@@ -43,13 +29,5 @@ class MessageRecorder implements MessageRecorderInterface, RecordedMessageCollec
     public function reset()
     {
         $this->resetRecordedMessages();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function record($message): void
-    {
-        $this->messages[] = $message;
     }
 }

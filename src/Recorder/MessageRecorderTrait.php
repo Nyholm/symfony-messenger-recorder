@@ -18,14 +18,14 @@ namespace Symfony\Component\Messenger\Recorder;
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-trait PrivateMessageRecorderCapabilities
+trait MessageRecorderTrait
 {
     private $messages = [];
 
     /**
      * {@inheritdoc}
      */
-    public function getRecordedMessages()
+    public function getRecordedMessages(): array
     {
         return $this->messages;
     }
@@ -33,7 +33,7 @@ trait PrivateMessageRecorderCapabilities
     /**
      * {@inheritdoc}
      */
-    public function resetRecordedMessages()
+    public function resetRecordedMessages(): void
     {
         $this->messages = [];
     }
@@ -43,7 +43,7 @@ trait PrivateMessageRecorderCapabilities
      *
      * @param object $message
      */
-    protected function record($message)
+    private function record($message): void
     {
         $this->messages[] = $message;
     }

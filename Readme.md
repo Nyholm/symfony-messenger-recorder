@@ -67,11 +67,11 @@ services:
 ```php
 
 use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
-use Symfony\Component\Messenger\Recorder\PrivateMessageRecorderCapabilities;
+use Symfony\Component\Messenger\Recorder\MessageRecorderTrait;
 
 class User implements RecordedMessageCollectionInterface
 {
-    use PrivateMessageRecorderCapabilities;
+    use MessageRecorderTrait;
 
     // ...
     
