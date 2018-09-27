@@ -24,7 +24,7 @@ services:
           class: Symfony\Component\Messenger\Recorder\ChainMessageRecorder
           public: false
           arguments:
-              - !tagged message.recoder
+              - !tagged messenger.recoder
           tags:
               - { name: 'kernel.reset', method: 'reset' }
 
