@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Messenger;
+namespace Symfony\Component\Messenger\Recorder;
 
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -34,7 +34,7 @@ class MessageRecorder implements MessageRecorderInterface, RecordedMessageCollec
      */
     public function resetRecordedMessages(): void
     {
-        $this->reset();
+        $this->messages = array();
     }
 
     /**
@@ -42,7 +42,7 @@ class MessageRecorder implements MessageRecorderInterface, RecordedMessageCollec
      */
     public function reset()
     {
-        $this->messages = array();
+        $this->resetRecordedMessages();
     }
 
     /**

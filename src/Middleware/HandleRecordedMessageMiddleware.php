@@ -13,7 +13,7 @@ namespace Symfony\Component\Messenger\Middleware;
 
 use Symfony\Component\Messenger\Exception\MessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\RecordedMessageCollectionInterface;
+use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 
 /**
  * A middleware that takes all recorded messages and dispatch them to the bus.

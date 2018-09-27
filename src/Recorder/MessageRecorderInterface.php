@@ -9,23 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Messenger;
+namespace Symfony\Component\Messenger\Recorder;
 
 /**
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-interface RecordedMessageCollectionInterface
+interface MessageRecorderInterface
 {
     /**
-     * Fetch recorded messages.
+     * Record a message.
      *
-     * @return object[]
+     * @param object $message
      */
-    public function getRecordedMessages(): array;
-
-    /**
-     * Remove all recorded messages.
-     */
-    public function resetRecordedMessages(): void;
+    public function record($message);
 }

@@ -14,10 +14,10 @@ namespace Symfony\Component\Messenger\Tests\Middleware;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Exception\MessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\MessageRecorder;
-use Symfony\Component\Messenger\MessageRecorderInterface;
+use Symfony\Component\Messenger\Recorder\MessageRecorder;
+use Symfony\Component\Messenger\Recorder\MessageRecorderInterface;
 use Symfony\Component\Messenger\Middleware\HandleRecordedMessageMiddleware;
-use Symfony\Component\Messenger\RecordedMessageCollectionInterface;
+use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 use Symfony\Component\Messenger\Tests\Fixtures\DummyMessage;
 
 class HandleRecordedMessageMiddlewareTest extends TestCase

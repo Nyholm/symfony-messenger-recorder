@@ -15,12 +15,21 @@ services:
             - '@messenger.recorder'
 
     messenger.recorder:
-        class: Symfony\Component\Messenger\MessageRecorder
+        class: Symfony\Component\Messenger\Recorder\MessageRecorder
         tags:
           - { name: 'kernel.reset', method: 'reset' }
+          - { name: 'messenger.recorder' }
 
-    Symfony\Component\Messenger\MessageRecorderInterface:
-        alias: 'messenger.recorder'
+    messenger.recorder.chain:
+          class: Symfony\Component\Messenger\Recorder\ChainRecorder
+          public: false
+          arguments:
+              - !tagged message.recoder
+          tags:
+              - { name: 'kernel.reset', method: 'reset' }
+
+    Symfony\Component\Messenger\Recorder\MessageRecorderInterface:
+          alias: 'messenger.recorder.chain'
 
 ```
 
@@ -42,6 +51,41 @@ framework:
                     - messenger.middleware.allow_no_handler
                     - messenger.middleware.validation
 ```
+
+### Register domain events from your entities
+
+```yaml
+services:
+    messenger.recorder.doctrine:
+        class: Symfony\Bridge\Doctrine\EventListener\MessengerMessageCollector
+        public: false
+        tags:
+          - { name: 'messenger.recorder' }
+          - { name: 'doctrine.event_subscriber', connection: 'default' }
+```
+
+```php
+
+use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
+use Symfony\Component\Messenger\Recorder\PrivateMessageRecorderCapabilities;
+
+class User implements RecordedMessageCollectionInterface
+{
+    use PrivateMessageRecorderCapabilities;
+
+    // ...
+    
+    public function setEmail(string $email)
+    {
+        $oldEmail = $this->email = $email;
+        $this->email = $email;
+        $this->record(new EmailChanged($this->id, $oldEmail, $email);
+    }
+```
+
+--------------
+--------------
+--------------
 
 # From Symfony docs
 
@@ -96,7 +140,7 @@ in the middleware chain.
     use App\Messenger\Command\CreateUser;
     use App\Messenger\Event\UserCreatedEvent;
     use Doctrine\ORM\EntityManagerInterface;
-    use Symfony\Component\Messenger\MessageRecorderInterface;
+    use Symfony\Component\Messenger\Recorder\MessageRecorderInterface;
 
     class CreateUserHandler
     {

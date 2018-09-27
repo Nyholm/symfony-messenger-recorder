@@ -14,7 +14,10 @@
         "symfony/messenger": ">=4.2"
     },
     "autoload": {
-        "psr-4": { "Symfony\\Component\\Messenger\\": "src" }
+        "psr-4": {
+            "Symfony\\Bridge\\Doctrine\\": "src/DoctrineBridge" ,
+            "Symfony\\Component\\Messenger\\": "src"
+        }
     },
     "autoload-dev": {
         "psr-4": { "Symfony\\Component\\Messenger\\Tests\\": "tests" }
