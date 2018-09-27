@@ -18,7 +18,7 @@ namespace Symfony\Component\Messenger\Recorder;
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-class ChainRecorder implements RecordedMessageCollectionInterface
+class ChainMessageRecorder implements RecordedMessageCollectionInterface
 {
     /**
      * @var RecordedMessageCollectionInterface[]

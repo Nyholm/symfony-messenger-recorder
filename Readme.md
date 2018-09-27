@@ -21,7 +21,7 @@ services:
           - { name: 'messenger.recorder' }
 
     messenger.recorder.chain:
-          class: Symfony\Component\Messenger\Recorder\ChainRecorder
+          class: Symfony\Component\Messenger\Recorder\ChainMessageRecorder
           public: false
           arguments:
               - !tagged message.recoder
