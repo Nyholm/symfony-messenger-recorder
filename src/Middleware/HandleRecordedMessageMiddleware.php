@@ -11,45 +11,56 @@
 
 namespace Symfony\Component\Messenger\Middleware;
 
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\EnvelopeAwareInterface;
 use Symfony\Component\Messenger\Exception\MessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
 use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 
 /**
- * A middleware that takes all recorded messages and dispatch them to the bus.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
- * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-class HandleRecordedMessageMiddleware implements MiddlewareInterface
+class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAwareInterface
 {
-    private $messageRecorder;
-    private $messageBus;
+    /**
+     * @var array A queue of messages and callables
+     */
+    private $queue = array();
 
-    public function __construct(MessageBusInterface $messageBus, RecordedMessageCollectionInterface $messageRecorder)
-    {
-        $this->messageRecorder = $messageRecorder;
-        $this->messageBus = $messageBus;
-    }
+    /**
+     * @var bool Indicate if we are running the middleware or not. Ie, are we called inside a message handler?
+     */
+    private $running = false;
 
-    public function handle($message, callable $next)
+    /**
+     * @param Envelope $envelope
+     */
+    public function handle($envelope, callable $next)
     {
+        if (null !== $envelope->get(Transaction::class)) {
+            if (!$this->running) {
+                throw new \LogicException('We have to use the transaction in the context of an event handler');
+            }
+            $this->queue[] = ['message'=>$envelope, 'callable'=>$next];
+
+            return;
+        }
+
         try {
-            $returnData = $next($message);
+            $returnData = $next($envelope);
         } catch (\Throwable $exception) {
-            $this->messageRecorder->resetRecordedMessages();
+            $this->queue = [];
 
             throw $exception;
         }
 
         $exceptions = array();
-        while (!empty($recordedMessages = $this->messageRecorder->getRecordedMessages())) {
-            $this->messageRecorder->resetRecordedMessages();
-            // Assert: The message recorder is empty, all messages are in $recordedMessages
-
-            foreach ($recordedMessages as $recordedMessage) {
+        while (!empty($queueItem = array_pop($this->queue))) {
+            foreach ($queueItem as [$message, $callable]) {
                 try {
-                    $this->messageBus->dispatch($recordedMessage);
+                    $callable($message);
                 } catch (\Throwable $exception) {
                     $exceptions[] = $exception;
                 }

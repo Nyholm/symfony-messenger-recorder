@@ -5,6 +5,9 @@ namespace Symfony\Bridge\Doctrine\EventListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
 use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 
 /**
@@ -17,6 +20,13 @@ use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 class MessengerMessageCollector implements EventSubscriber, RecordedMessageCollectionInterface
 {
     private $collectedMessage = array();
+
+    private $messageBus;
+
+    public function __construct(MessageBusInterface $messageBus)
+    {
+        $this->messageBus = $messageBus;
+    }
 
     public function getSubscribedEvents()
     {
@@ -52,13 +62,13 @@ class MessengerMessageCollector implements EventSubscriber, RecordedMessageColle
         $this->collectedMessage = array();
     }
 
-    private function collectEventsFromEntity(LifecycleEventArgs $event)
+    private function collectEventsFromEntity(LifecycleEventArgs $message)
     {
-        $entity = $event->getEntity();
+        $entity = $message->getEntity();
 
         if ($entity instanceof RecordedMessageCollectionInterface) {
-            foreach ($entity->getRecordedMessages() as $event) {
-                $this->collectedMessage[] = $event;
+            foreach ($entity->getRecordedMessages() as $message) {
+                $this->messageBus->dispatch((new Envelope($message))->with(new Transaction));
             }
 
             $entity->resetRecordedMessages();
