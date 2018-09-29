@@ -14,15 +14,13 @@ namespace Symfony\Component\Messenger\Middleware;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\EnvelopeAwareInterface;
 use Symfony\Component\Messenger\Exception\MessageHandlingException;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
-use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
- *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  */
-class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAwareInterface
+class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAwareInterface, ResetInterface
 {
     /**
      * @var array A queue of messages and callables
@@ -48,25 +46,31 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAw
             return;
         }
 
+        if ($this->running) {
+            // If we are not the "master request"
+            return $next($envelope);
+        }
+
+        $this->running = true;
         try {
             $returnData = $next($envelope);
         } catch (\Throwable $exception) {
             $this->queue = [];
+            $this->running = false;
 
             throw $exception;
         }
 
         $exceptions = array();
         while (!empty($queueItem = array_pop($this->queue))) {
-            foreach ($queueItem as [$message, $callable]) {
-                try {
-                    $callable($message);
-                } catch (\Throwable $exception) {
-                    $exceptions[] = $exception;
-                }
+            try {
+                $queueItem['callable']($queueItem['message']);
+            } catch (\Throwable $exception) {
+                $exceptions[] = $exception;
             }
         }
 
+        $this->running = false;
         if (!empty($exceptions)) {
             if (1 === \count($exceptions)) {
                 throw $exceptions[0];
@@ -75,5 +79,13 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAw
         }
 
         return $returnData;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reset()
+    {
+        $this->queue = array();
     }
 }
