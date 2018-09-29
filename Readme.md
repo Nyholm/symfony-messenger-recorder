@@ -40,7 +40,7 @@ framework:
 ```yaml
 services:
     messenger.recorder.doctrine:
-        class: Symfony\Bridge\Doctrine\EventListener\MessengerMessageCollector
+        class: Symfony\Bridge\Doctrine\EventListener\MessengerEntityMessageCollector
         public: false
         arguments: ['@messenger.bus.event']
         tags:
@@ -49,10 +49,10 @@ services:
 
 ```php
 
-use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
-use Symfony\Component\Messenger\Recorder\MessageRecorderTrait;
+use Symfony\Bridge\Doctrine\EntityMessage\EntityMessageCollectionInterface;
+use Symfony\Bridge\Doctrine\EntityMessage\MessageRecorderTrait;
 
-class User implements RecordedMessageCollectionInterface
+class User implements EntityMessageCollectionInterface
 {
     use MessageRecorderTrait;
 

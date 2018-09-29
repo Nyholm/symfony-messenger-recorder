@@ -5,9 +5,10 @@ namespace Symfony\Bridge\Doctrine\EventListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Bridge\Doctrine\EntityMessage\EntityMessageCollectionInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
+use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
 
 /**
  * Doctrine listener that listens to Persist, Update and Remove. Every time this is
@@ -16,7 +17,7 @@ use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-class MessengerMessageCollector implements EventSubscriber
+class MessengerEntityMessageCollector implements EventSubscriber
 {
     private $collectedMessage = array();
 
@@ -55,9 +56,9 @@ class MessengerMessageCollector implements EventSubscriber
     {
         $entity = $message->getEntity();
 
-        if ($entity instanceof RecordedMessageCollectionInterface) {
+        if ($entity instanceof EntityMessageCollectionInterface) {
             foreach ($entity->getRecordedMessages() as $message) {
-                $this->messageBus->dispatch((new Envelope($message))->with(new Transaction));
+                $this->messageBus->dispatch((new Envelope($message))->with(new Transaction()));
             }
 
             $entity->resetRecordedMessages();

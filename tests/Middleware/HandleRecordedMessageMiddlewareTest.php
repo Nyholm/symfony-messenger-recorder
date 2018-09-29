@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\Exception\MessageHandlingException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Recorder\MessageRecorder;
 use Symfony\Component\Messenger\Recorder\MessageRecorderInterface;
-use Symfony\Component\Messenger\Middleware\HandleRecordedMessageMiddleware;
+use Symfony\Component\Messenger\Middleware\HandleMessageInNewTransactionMiddleware;
 use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 use Symfony\Component\Messenger\Tests\Fixtures\DummyMessage;
 
@@ -42,7 +42,7 @@ class HandleRecordedMessageMiddlewareTest extends TestCase
             }
         };
 
-        $middleware = new HandleRecordedMessageMiddleware($messageBus, $recorder);
+        $middleware = new HandleMessageInNewTransactionMiddleware($messageBus, $recorder);
         try {
             $middleware->handle($message, $next);
         } catch (\LogicException $e) {
@@ -61,7 +61,7 @@ class HandleRecordedMessageMiddlewareTest extends TestCase
         $messageBus = $this->getMockBuilder(MessageBusInterface::class)->getMock();
         $messageBus->expects($this->exactly(0))->method('dispatch');
 
-        $middleware = new HandleRecordedMessageMiddleware($messageBus, $recorder);
+        $middleware = new HandleMessageInNewTransactionMiddleware($messageBus, $recorder);
         $middleware->handle($message, $next);
         $this->assertEmpty($recorder->getRecordedMessages());
     }
@@ -101,7 +101,7 @@ class HandleRecordedMessageMiddlewareTest extends TestCase
             }
         };
 
-        $middleware = new HandleRecordedMessageMiddleware($messageBus, $recorder);
+        $middleware = new HandleMessageInNewTransactionMiddleware($messageBus, $recorder);
         $middleware->handle($message, $next);
         $this->assertEmpty($recorder->getRecordedMessages(), 'RecordedMessageContainerInterface should be empty after execution of HandleRecordedMessageMiddleware.');
     }
@@ -133,7 +133,7 @@ class HandleRecordedMessageMiddlewareTest extends TestCase
             }
         };
 
-        $middleware = new HandleRecordedMessageMiddleware($messageBus, $recorder);
+        $middleware = new HandleMessageInNewTransactionMiddleware($messageBus, $recorder);
         $this->expectException(MessageHandlingException::class);
         $this->expectExceptionMessage('Some handlers for recorded messages threw an exception. Their messages were: 
 
@@ -152,7 +152,7 @@ Foo');
         $messageBus = $this->getMockBuilder(MessageBusInterface::class)->getMock();
         $recorder = $this->getMockBuilder(RecordedMessageCollectionInterface::class)->getMock();
 
-        $middleware = new HandleRecordedMessageMiddleware($messageBus, $recorder);
+        $middleware = new HandleMessageInNewTransactionMiddleware($messageBus, $recorder);
 
         $result = $middleware->handle($message, $next);
 

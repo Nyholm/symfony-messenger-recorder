@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Messenger\Recorder;
+namespace Symfony\Bridge\Doctrine\EntityMessage;
 
 /**
- * Use this trait in classes which implement RecordedMessageCollectionInterface
+ * Use this trait in classes which implement EntityMessageCollectionInterface
  * to privately record and later release Message instances, like events.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
