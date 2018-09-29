@@ -6,9 +6,9 @@ This is a substitute library before Symfony merges this feature to core.
 ## Use
 
 ```yaml
-services:
+
     messenger.middleware.handles_recorded_messages:
-        class: Symfony\Component\Messenger\Middleware\HandleRecordedMessageMiddleware
+        class: Symfony\Component\Messenger\Middleware\HandleMessageInNewTransactionMiddleware
 
 ```
 
@@ -29,6 +29,9 @@ framework:
                 middleware:
                     - messenger.middleware.handles_recorded_messages
                     - messenger.middleware.allow_no_handler
+                    - messenger.middleware.validation
+            messenger.bus.query:
+                middleware:
                     - messenger.middleware.validation
 ```
 

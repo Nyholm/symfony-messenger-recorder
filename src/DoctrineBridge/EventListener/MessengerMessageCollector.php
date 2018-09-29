@@ -7,7 +7,6 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
 use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
 
 /**
@@ -17,7 +16,7 @@ use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-class MessengerMessageCollector implements EventSubscriber, RecordedMessageCollectionInterface
+class MessengerMessageCollector implements EventSubscriber
 {
     private $collectedMessage = array();
 
@@ -50,16 +49,6 @@ class MessengerMessageCollector implements EventSubscriber, RecordedMessageColle
     public function postRemove(LifecycleEventArgs $event)
     {
         $this->collectEventsFromEntity($event);
-    }
-
-    public function getRecordedMessages(): array
-    {
-        return $this->collectedMessage;
-    }
-
-    public function resetRecordedMessages(): void
-    {
-        $this->collectedMessage = array();
     }
 
     private function collectEventsFromEntity(LifecycleEventArgs $message)

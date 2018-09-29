@@ -15,12 +15,14 @@ use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\EnvelopeAwareInterface;
 use Symfony\Component\Messenger\Exception\MessageHandlingException;
 use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
+ * Allow to configure messages to be handled in a new Doctrine transaction. This middleware
+ * should be used before DoctrineTransactionMiddleware.
+ *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  */
-class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAwareInterface, ResetInterface
+class HandleMessageInNewTransactionMiddleware implements MiddlewareInterface, EnvelopeAwareInterface
 {
     /**
      * @var array A queue of messages and callables
@@ -30,7 +32,7 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAw
     /**
      * @var bool Indicate if we are running the middleware or not. Ie, are we called inside a message handler?
      */
-    private $running = false;
+    private $insideMessageHandler = false;
 
     /**
      * @param Envelope $envelope
@@ -38,25 +40,28 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAw
     public function handle($envelope, callable $next)
     {
         if (null !== $envelope->get(Transaction::class)) {
-            if (!$this->running) {
-                throw new \LogicException('We have to use the transaction in the context of an event handler');
+            if (!$this->insideMessageHandler) {
+                throw new \LogicException('We have to use the transaction in the context of a message handler');
             }
             $this->queue[] = ['message'=>$envelope, 'callable'=>$next];
 
             return;
         }
 
-        if ($this->running) {
-            // If we are not the "master request"
+        if ($this->insideMessageHandler) {
+            /*
+             * If come inside a second message handler, just continue as normal. We should not
+             * run the stored messages.
+             */
             return $next($envelope);
         }
 
-        $this->running = true;
+        $this->insideMessageHandler = true;
         try {
             $returnData = $next($envelope);
         } catch (\Throwable $exception) {
             $this->queue = [];
-            $this->running = false;
+            $this->insideMessageHandler = false;
 
             throw $exception;
         }
@@ -64,13 +69,15 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAw
         $exceptions = array();
         while (!empty($queueItem = array_pop($this->queue))) {
             try {
+                // Execute the stored messages
                 $queueItem['callable']($queueItem['message']);
             } catch (\Throwable $exception) {
                 $exceptions[] = $exception;
             }
         }
 
-        $this->running = false;
+        // Assert: $this->queue is empty.
+        $this->insideMessageHandler = false;
         if (!empty($exceptions)) {
             if (1 === \count($exceptions)) {
                 throw $exceptions[0];
@@ -79,13 +86,5 @@ class HandleRecordedMessageMiddleware implements MiddlewareInterface, EnvelopeAw
         }
 
         return $returnData;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function reset()
-    {
-        $this->queue = array();
     }
 }
