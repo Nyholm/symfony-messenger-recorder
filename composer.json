@@ -8,7 +8,8 @@
         }
     ],
     "require": {
-        "symfony/contracts": "^1.0"
+        "symfony/contracts": "^1.0",
+        "symfony/messenger": "^4.1"
     },
     "conflict": {
         "symfony/messenger": ">=4.2"

@@ -17,8 +17,8 @@ use Symfony\Component\Messenger\Exception\MessageHandlingException;
 use Symfony\Component\Messenger\Middleware\Configuration\Transaction;
 
 /**
- * Allow to configure messages to be handled in a new Doctrine transaction. This middleware
- * should be used before DoctrineTransactionMiddleware.
+ * Allow to configure messages to be handled in a new Doctrine transaction if using
+ * the DoctrineTransactionMiddleware. This middleware should be used before DoctrineTransactionMiddleware.
  *
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  */
@@ -43,7 +43,7 @@ class HandleMessageInNewTransactionMiddleware implements MiddlewareInterface, En
             if (!$this->insideMessageHandler) {
                 throw new \LogicException('We have to use the transaction in the context of a message handler');
             }
-            $this->queue[] = ['message'=>$envelope, 'callable'=>$next];
+            $this->queue[] = ['envelope'=>$envelope, 'callable'=>$next];
 
             return;
         }
@@ -70,7 +70,7 @@ class HandleMessageInNewTransactionMiddleware implements MiddlewareInterface, En
         while (!empty($queueItem = array_pop($this->queue))) {
             try {
                 // Execute the stored messages
-                $queueItem['callable']($queueItem['message']);
+                $queueItem['callable']($queueItem['envelope']);
             } catch (\Throwable $exception) {
                 $exceptions[] = $exception;
             }
