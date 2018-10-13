@@ -6,30 +6,9 @@ This is a substitute library before Symfony merges this feature to core.
 ## Use
 
 ```yaml
-services:
+
     messenger.middleware.handles_recorded_messages:
-        class: Symfony\Component\Messenger\Middleware\HandleRecordedMessageMiddleware
-        abstract: true
-        arguments:
-            - '@messenger.bus.event'
-            - '@messenger.recorder'
-
-    messenger.recorder:
-        class: Symfony\Component\Messenger\Recorder\MessageRecorder
-        tags:
-          - { name: 'kernel.reset', method: 'reset' }
-          - { name: 'messenger.recorder' }
-
-    messenger.recorder.chain:
-          class: Symfony\Component\Messenger\Recorder\ChainMessageRecorder
-          public: false
-          arguments:
-              - !tagged messenger.recoder
-          tags:
-              - { name: 'kernel.reset', method: 'reset' }
-
-    Symfony\Component\Messenger\Recorder\MessageRecorderInterface:
-          alias: 'messenger.recorder.chain'
+        class: Symfony\Component\Messenger\Middleware\HandleMessageInNewTransactionMiddleware
 
 ```
 
@@ -48,7 +27,11 @@ framework:
                     - app.doctrine_transaction_middleware: ['default']
             messenger.bus.event:
                 middleware:
+                    - messenger.middleware.handles_recorded_messages
                     - messenger.middleware.allow_no_handler
+                    - messenger.middleware.validation
+            messenger.bus.query:
+                middleware:
                     - messenger.middleware.validation
 ```
 
@@ -57,19 +40,19 @@ framework:
 ```yaml
 services:
     messenger.recorder.doctrine:
-        class: Symfony\Bridge\Doctrine\EventListener\MessengerMessageCollector
+        class: Symfony\Bridge\Doctrine\EventListener\MessengerEntityMessageCollector
         public: false
+        arguments: ['@messenger.bus.event']
         tags:
-          - { name: 'messenger.recorder' }
           - { name: 'doctrine.event_subscriber', connection: 'default' }
 ```
 
 ```php
 
-use Symfony\Component\Messenger\Recorder\RecordedMessageCollectionInterface;
-use Symfony\Component\Messenger\Recorder\MessageRecorderTrait;
+use Symfony\Bridge\Doctrine\EntityMessage\EntityMessageCollectionInterface;
+use Symfony\Bridge\Doctrine\EntityMessage\MessageRecorderTrait;
 
-class User implements RecordedMessageCollectionInterface
+class User implements EntityMessageCollectionInterface
 {
     use MessageRecorderTrait;
 

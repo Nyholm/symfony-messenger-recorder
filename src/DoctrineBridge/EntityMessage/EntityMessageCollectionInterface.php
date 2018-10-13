@@ -9,18 +9,23 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\Messenger\Recorder;
+namespace Symfony\Bridge\Doctrine\EntityMessage;
 
 /**
  * @author Tobias Nyholm <tobias.nyholm@gmail.com>
  * @author Matthias Noback <matthiasnoback@gmail.com>
  */
-interface MessageRecorderInterface
+interface EntityMessageCollectionInterface
 {
     /**
-     * Record a message.
+     * Fetch recorded messages.
      *
-     * @param object $message
+     * @return object[]
      */
-    public function record($message);
+    public function getRecordedMessages(): array;
+
+    /**
+     * Remove all recorded messages.
+     */
+    public function resetRecordedMessages(): void;
 }
