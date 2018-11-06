@@ -67,7 +67,7 @@ class HandleMessageInNewTransactionMiddleware implements MiddlewareInterface, En
         }
 
         $exceptions = array();
-        while (!empty($queueItem = array_pop($this->queue))) {
+        while (!empty($queueItem = array_shift($this->queue))) {
             try {
                 // Execute the stored messages
                 $queueItem['callable']($queueItem['envelope']);
