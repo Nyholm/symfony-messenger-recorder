@@ -14,4 +14,13 @@ use Symfony\Component\Messenger\EnvelopeItemInterface;
  */
 class Transaction implements EnvelopeItemInterface
 {
+  public function serialize()
+    {
+        return '';
+    }
+
+    public function unserialize($serialized)
+    {
+        // noop
+    }
 }
