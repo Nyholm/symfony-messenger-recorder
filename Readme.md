@@ -1,6 +1,8 @@
 # Record messages with Symfony Messenger Component
 
-This is a substitute library before Symfony merges this feature to core. 
+# This feature is supported out-of-the-box since Symfony 4.3. For more info check [documentation](https://symfony.com/doc/current/messenger/message-recorder.html).
+
+This is a substitute library before Symfony merges this feature to core.
 
 
 ## Use
