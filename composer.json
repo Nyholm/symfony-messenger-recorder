@@ -8,8 +8,8 @@
         }
     ],
     "require": {
-        "symfony/contracts": "^1.0",
-        "symfony/messenger": "^4.1"
+        "symfony/contracts": "^2.1",
+        "symfony/messenger": "^5.1"
     },
     "autoload": {
         "psr-4": {
