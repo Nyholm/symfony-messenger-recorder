@@ -11,9 +11,6 @@
         "symfony/contracts": "^1.0",
         "symfony/messenger": "^4.1"
     },
-    "conflict": {
-        "symfony/messenger": ">=4.2"
-    },
     "autoload": {
         "psr-4": {
             "Symfony\\Bridge\\Doctrine\\": "src/DoctrineBridge" ,
