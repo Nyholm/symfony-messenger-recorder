@@ -9,7 +9,7 @@
     ],
     "require": {
         "symfony/contracts": "^2.1",
-        "symfony/messenger": "^5.1"
+        "symfony/messenger": "5.1.*"
     },
     "autoload": {
         "psr-4": {
